@@ -268,9 +268,11 @@ input::-ms-clear {
     display: none;
 }
 html,
-body,
-.fixapp {
+body{
     position: relative;
-    height: 100%;
-    overflow: hidden;
-} 
+    height: 100%;  
+    overflow: scroll;
+}
+.fixapp{
+    position: relative;
+}

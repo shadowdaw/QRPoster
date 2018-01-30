@@ -23,7 +23,7 @@
         <div class="form-item">
           <dinput type="text" placeholder="输入二维码地址或点击二维码图片上传" class="daw-input" v-model="qrurl">
             <span slot="append" @click="initQrCodeSrc">生成二维码</span>
-          </dinput> 
+          </dinput>
         </div>
         <div class="form-item">
           <div class="btn" @click="createPoster">生成海报</div>
@@ -60,7 +60,7 @@ export default {
       qrposter: '',
       editing: true,
       qrcodeSrc: '',
-      site:window.location.origin
+      site: window.location.origin
     }
   },
   computed: {},
@@ -95,7 +95,7 @@ export default {
       this.editing = true;
     }
   },
-  components: { Uploader,Dinput }
+  components: { Uploader, Dinput }
 }
 
 </script>
@@ -129,6 +129,7 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
+  padding-bottom: 20px;
 }
 
 .qrposter {
@@ -163,10 +164,12 @@ export default {
   display: flex;
   align-items: center;
 }
-.qrcode{
+
+.qrcode {
   width: 100px;
   height: 100px;
 }
+
 .info {
   padding: 0 12px;
   color: #999;
@@ -209,12 +212,10 @@ export default {
 }
 
 .slide-enter {
-  transform: translateX(100%);
   opacity: 0;
 }
 
 .slide-leave-to {
-  transform: translateX(-100%);
   opacity: 0;
 }
 
