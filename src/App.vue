@@ -3,6 +3,15 @@
     <transition name="slide">
       <div class="form" v-if="editing" key="edit">
         <div class="qrposter" ref="qrposter">
+          <div class="introduction" v-if="firstTime">
+            <p>此处是海报模版区域</p>
+            <p>点击你需要编辑的部分</p>
+            <p>点击下方“生成海报”即可生成</p>
+            <p>此区域对应的海报图片</p>
+            <div class="form-item">
+              <div class="btn" @click="iknow">知道了</div>
+            </div>
+          </div>
           <uploader @uploaded="modifyPoster">
             <img :src="imgsrc" alt="" class="poster">
           </uploader>
@@ -31,7 +40,9 @@
         <p class="tips"><a class="bloglink" href="https://blog.insomnia-er.com/">查看作者个人主页</a></p>
       </div>
       <div class="form" v-else key="save">
-        <img :src="qrposter" class="poster">
+        <div class="box">
+          <img :src="qrposter" class="poster card">
+        </div>
         <div class="form-item">
           <a class="btn" :href="qrposter" download="qrposter.jpeg">保存至本地</a>
         </div>
@@ -48,6 +59,7 @@
 import Uploader from '@/components/FileUp2Base64';
 import Dinput from '@/components/Dinput';
 import Qrious from 'qrious';
+import cookies from '@/utils/cookies'
 import html2canvas from 'html2canvas';
 export default {
   name: 'App',
@@ -60,7 +72,8 @@ export default {
       qrposter: '',
       editing: true,
       qrcodeSrc: '',
-      site: window.location.origin
+      site: window.location.origin,
+      firstTime:'1'!==cookies.get('used')
     }
   },
   computed: {},
@@ -93,6 +106,10 @@ export default {
     },
     reEdit: function() {
       this.editing = true;
+    },
+    iknow: function() {
+      this.firstTime = false;
+      cookies.set('used','1')
     }
   },
   components: { Uploader, Dinput }
@@ -132,9 +149,31 @@ export default {
   padding-bottom: 20px;
 }
 
+.introduction {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #FFF;
+  font-size: 18px;
+}
+
 .qrposter {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  position: relative;
+  box-shadow: 0 5px 10px 1px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+}
+
+.box {
+  padding: 8px;
+}
+
+.card {
+  box-shadow: 0 0px 8px 5px rgba(0, 0, 0, 0.1);
 }
 
 .poster {
@@ -187,6 +226,7 @@ export default {
   line-height: 30px;
   font-size: 18px;
   border-radius: 6px;
+  padding: 0 12px;
 }
 
 .daw-input {
@@ -212,10 +252,12 @@ export default {
 }
 
 .slide-enter {
+  transform: translateX(100%);
   opacity: 0;
 }
 
 .slide-leave-to {
+  transform: translateX(-100%);
   opacity: 0;
 }
 
