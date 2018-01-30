@@ -5,11 +5,11 @@
         <div class="qrposter" ref="qrposter">
           <div class="introduction" v-if="firstTime">
             <p>此处是海报模版区域</p>
-            <p>点击你需要编辑的部分</p>
-            <p>点击下方“生成海报”即可生成</p>
-            <p>此区域对应的海报图片</p>
+            <p>按照说明编辑修改</p>
+            <p>再点下方“生成海报”</p>
+            <p>生成此区域对应图片</p>
             <div class="form-item">
-              <div class="btn" @click="iknow">知道了</div>
+              <div class="btn" @click="iknow">我来试试</div>
             </div>
           </div>
           <uploader @uploaded="modifyPoster">
