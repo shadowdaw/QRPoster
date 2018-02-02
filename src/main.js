@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import './assets/global.css'
+import 'vue-l-carousel/dist/main.css'
 
 Vue.config.productionTip = false
 

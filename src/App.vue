@@ -1,56 +1,63 @@
 <template>
   <div id="app" class="fixapp">
-    <transition name="slide">
-      <div class="form" v-if="editing" key="edit">
-        <div class="qrposter" ref="qrposter">
-          <div class="introduction" v-if="firstTime">
-            <p>此处是海报模版区域</p>
-            <p>按照说明编辑修改</p>
-            <p>再点下方“生成海报”</p>
-            <p>生成此区域对应图片</p>
+    <div>
+      <transition name="slide">
+        <div class="form" v-show="editing" key="edit">
+          <div class="qrposter" ref="qrposter">
+            <div class="introduction" v-if="firstTime">
+              <p>此处是海报模版区域</p>
+              <p>按照说明编辑修改</p>
+              <p>再点下方“生成海报”</p>
+              <p>生成此区域对应图片</p>
+              <div class="form-item">
+                <div class="btn" @click="iknow">我来试试</div>
+              </div>
+            </div>
+            <normal :qrcodeSrc="qrcodeSrc" v-if="currentTemp=='normal'"/>
+            <news :qrcodeSrc="qrcodeSrc" v-else-if="currentTemp=='news'"/>
+          </div>
+          <div class="form-item">
+            <dinput type="text" placeholder="输入二维码地址或点击二维码图片上传" class="daw-input" v-model="qrurl">
+              <span slot="append" @click="initQrCodeSrc">生成二维码</span>
+            </dinput>
+          </div>
+          <div class="form-item">
+            <div class="btn" @click="createPoster">生成海报</div>
+          </div>
+          <div class="form-item">
+            <div class="btn" @click="switchTemplate">切换模版</div>
+          </div>
+          <p class="tips"><a class="bloglink" href="https://blog.insomnia-er.com/">查看作者个人主页</a></p>
+        </div>
+      </transition>
+      <transition name="slide">
+        <div class="form" v-show="!editing" key="save">
+          <div class="box">
+            <img :src="qrposter" class="poster card">
+          </div>
+          <div class="form-item">
+            <a class="btn" :href="qrposter" download="qrposter.jpeg">保存至本地</a>
+          </div>
+          <div class="form-item">
+            <div class="btn" @click="reEdit">重新编辑</div>
+          </div>
+          <p class="tips">若保存失败，请尝试长按图片保存</p>
+          <p class="tips"><a class="bloglink" href="https://blog.insomnia-er.com/">查看作者个人主页</a></p>
+        </div>
+      </transition>
+    </div>
+    <transition name="fade">
+      <div v-show="showTemplate" class="form templatelist">
+        <carousel :watch-items="tempList" :dots="false" :control="false" :loop="true">
+          <carousel-item v-for="(temp, index) in tempList" :key="temp">
+            <div class="box">
+              <img :src="`/static/${temp}.jpeg`" class="poster card">
+            </div>
             <div class="form-item">
-              <div class="btn" @click="iknow">我来试试</div>
+              <div class="btn" @click="chooseTemplate(temp)">使用此模版</div>
             </div>
-          </div>
-          <uploader @uploaded="modifyPoster">
-            <img :src="imgsrc" alt="" class="poster">
-          </uploader>
-          <div class="content">
-            <h1 class="title" contenteditable="true" v-text="title"></h1>
-            <p class="summary" contenteditable="true" v-text="summary"></p>
-          </div>
-          <div class="footer">
-            <uploader @uploaded="modifyQrcode">
-              <img :src="qrcodeSrc" alt="" class="qrcode">
-            </uploader>
-            <div class="info">
-              <p>长按二维码查看原文</p>
-              <p>生成工具: {{site}}</p>
-            </div>
-          </div>
-        </div>
-        <div class="form-item">
-          <dinput type="text" placeholder="输入二维码地址或点击二维码图片上传" class="daw-input" v-model="qrurl">
-            <span slot="append" @click="initQrCodeSrc">生成二维码</span>
-          </dinput>
-        </div>
-        <div class="form-item">
-          <div class="btn" @click="createPoster">生成海报</div>
-        </div>
-        <p class="tips"><a class="bloglink" href="https://blog.insomnia-er.com/">查看作者个人主页</a></p>
-      </div>
-      <div class="form" v-else key="save">
-        <div class="box">
-          <img :src="qrposter" class="poster card">
-        </div>
-        <div class="form-item">
-          <a class="btn" :href="qrposter" download="qrposter.jpeg">保存至本地</a>
-        </div>
-        <div class="form-item">
-          <div class="btn" @click="reEdit">重新编辑</div>
-        </div>
-        <p class="tips">若保存失败，请尝试长按图片保存</p>
-        <p class="tips"><a class="bloglink" href="https://blog.insomnia-er.com/">查看作者个人主页</a></p>
+          </carousel-item>
+        </carousel>
       </div>
     </transition>
   </div>
@@ -58,22 +65,25 @@
 <script>
 import Uploader from '@/components/FileUp2Base64';
 import Dinput from '@/components/Dinput';
+import Normal from '@/components/Normal';
+import News from '@/components/News';
 import Qrious from 'qrious';
-import cookies from '@/utils/cookies'
+import cookies from '@/utils/cookies';
 import html2canvas from 'html2canvas';
+import { Carousel, CarouselItem } from '@/components/Carousel'
 export default {
   name: 'App',
   data: function() {
     return {
       qrurl: '',
-      title: '点击编辑标题',
-      summary: '点击编辑摘要',
-      imgsrc: '/static/poster.jpg',
       qrposter: '',
       editing: true,
       qrcodeSrc: '',
       site: window.location.origin,
-      firstTime:'1'!==cookies.get('used')
+      firstTime: '1' !== cookies.get('used'),
+      showTemplate: false,
+      tempList: ['normal', 'news'],
+      currentTemp:'normal'
     }
   },
   computed: {},
@@ -90,13 +100,6 @@ export default {
       });
       return qr.toDataURL();
     },
-    modifyPoster: function(imgData) {
-      this.imgsrc = imgData
-    },
-    modifyQrcode: function(imgData) {
-      console.log(imgData)
-      this.qrcodeSrc = imgData
-    },
     createPoster: function() {
       var vm = this;
       html2canvas(this.$refs.qrposter).then(function(canvas) {
@@ -109,16 +112,31 @@ export default {
     },
     iknow: function() {
       this.firstTime = false;
-      cookies.set('used','1')
-    }
+      cookies.set('used', '1')
+    },
+    switchTemplate: function() {
+      this.showTemplate = true;
+    },
+    chooseTemplate: function(ct) {
+      this.currentTemp=ct;
+      this.showTemplate = false;
+    },
   },
-  components: { Uploader, Dinput }
+  components: {
+    Uploader,
+    Dinput,
+    Normal,
+    News,
+    'carousel': Carousel,
+    'carousel-item': CarouselItem
+  }
 }
 
 </script>
 <style>
 #app {
   max-width: 450px;
+  min-height: 100%;
   margin: 0 auto;
   font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -175,47 +193,11 @@ export default {
 .card {
   box-shadow: 0 0px 8px 5px rgba(0, 0, 0, 0.1);
 }
-
-.poster {
-  width: 100%;
-}
-
-.content {
-  padding: 10px 20px;
-  text-align: left;
-  border-bottom: 1px solid #EEE;
-}
-
-.title {
-  font-weight: bolder;
-  font-size: 18px;
-}
-
-.summary {
-  margin: 12px 0;
-  font-size: 14px;
-  word-wrap: break-all;
-}
-
-.footer {
-  padding: 12px 10px;
-  text-align: left;
-  display: flex;
-  align-items: center;
-}
-
-.qrcode {
-  width: 100px;
-  height: 100px;
-}
-
-.info {
-  padding: 0 12px;
-  color: #999;
-}
-
 .form-item {
   padding: 8px 12px;
+}
+.poster {
+  width: 100%;
 }
 
 .btn {
@@ -259,6 +241,30 @@ export default {
 .slide-leave-to {
   transform: translateX(-100%);
   opacity: 0;
+}
+
+.fade-enter-active {
+  transition: all 1s ease;
+}
+
+.fade-leave-active {
+  transition: all 1s ease;
+}
+
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-leave-to {
+  opacity: 0;
+}
+
+.v-carousel { 
+  width: 100%;
+}
+.templatelist{
+  min-height: 100%;
+  background-color: rgba(0,0,0,0.8);
 }
 
 </style>
