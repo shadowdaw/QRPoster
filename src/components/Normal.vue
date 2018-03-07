@@ -85,8 +85,7 @@ export default {
 }
 
 .qrcode {
-  width: 100px;
-  height: 100px;
+  width: 100px; 
   padding: 10px;
 }
 

@@ -11,6 +11,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "dom-to-image": "^2.6.0",
     "html2canvas": "^1.0.0-alpha.9",
     "less": "^2.7.3",
     "less-loader": "^4.0.5",

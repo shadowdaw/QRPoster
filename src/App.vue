@@ -13,8 +13,8 @@
                 <div class="btn" @click="iknow">我来试试</div>
               </div>
             </div>
-            <normal :qrcodeSrc="qrcodeSrc" v-if="currentTemp=='normal'"/>
-            <news :qrcodeSrc="qrcodeSrc" v-else-if="currentTemp=='news'"/>
+            <normal :qrcodeSrc="qrcodeSrc" v-if="currentTemp=='normal'" />
+            <news :qrcodeSrc="qrcodeSrc" v-else-if="currentTemp=='news'" />
           </div>
           <div class="form-item">
             <dinput type="text" placeholder="输入二维码地址或点击二维码图片上传" class="daw-input" v-model="qrurl">
@@ -69,7 +69,7 @@ import Normal from '@/components/Normal';
 import News from '@/components/News';
 import Qrious from 'qrious';
 import cookies from '@/utils/cookies';
-import html2canvas from 'html2canvas';
+import domtoimage from '@/utils/dom-to-image';
 import { Carousel, CarouselItem } from '@/components/Carousel'
 export default {
   name: 'App',
@@ -83,7 +83,7 @@ export default {
       firstTime: '1' !== cookies.get('used'),
       showTemplate: false,
       tempList: ['normal', 'news'],
-      currentTemp:'normal'
+      currentTemp: 'normal'
     }
   },
   computed: {},
@@ -102,10 +102,14 @@ export default {
     },
     createPoster: function() {
       var vm = this;
-      html2canvas(this.$refs.qrposter).then(function(canvas) {
-        vm.qrposter = canvas.toDataURL('image/jpeg');
-        vm.editing = false;
-      });
+      domtoimage.toJpeg(this.$refs.qrposter)
+        .then(function(dataUrl) {
+          vm.qrposter = dataUrl;
+          vm.editing = false;
+        })
+        .catch(function(error) {
+          console.error('oops, something went wrong!', error);
+        });
     },
     reEdit: function() {
       this.editing = true;
@@ -118,7 +122,7 @@ export default {
       this.showTemplate = true;
     },
     chooseTemplate: function(ct) {
-      this.currentTemp=ct;
+      this.currentTemp = ct;
       this.showTemplate = false;
     },
   },
@@ -184,6 +188,7 @@ export default {
   position: relative;
   box-shadow: 0 5px 10px 1px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  background-color: #fff;
 }
 
 .box {
@@ -193,11 +198,14 @@ export default {
 .card {
   box-shadow: 0 0px 8px 5px rgba(0, 0, 0, 0.1);
 }
+
 .form-item {
   padding: 8px 12px;
 }
+
 .poster {
   width: 100%;
+
 }
 
 .btn {
@@ -259,12 +267,13 @@ export default {
   opacity: 0;
 }
 
-.v-carousel { 
+.v-carousel {
   width: 100%;
 }
-.templatelist{
+
+.templatelist {
   min-height: 100%;
-  background-color: rgba(0,0,0,0.8);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 </style>
